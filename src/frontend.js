@@ -1,0 +1,461 @@
+export const htmlContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抖音视频下载器</title>
+  <!-- Google Fonts Outfit & Noto Sans SC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gradient: linear-gradient(90deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+      --accent-color: #a78bfa;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --error-color: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* Background decorative blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      z-index: 0;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .blob-1 {
+      top: 10%;
+      left: 15%;
+      width: 300px;
+      height: 300px;
+      background: #8b5cf6;
+    }
+    .blob-2 {
+      bottom: 15%;
+      right: 10%;
+      width: 400px;
+      height: 400px;
+      background: #ec4899;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Glassmorphism Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      margin-right: 8px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+
+    /* Input Controls */
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px rgba(167, 139, 250, 0.2);
+    }
+
+    textarea::placeholder {
+      color: #64748b;
+    }
+
+    .btn {
+      width: 100%;
+      height: 52px;
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+      transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Statuses and Progress */
+    .status-container {
+      display: none;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .loader {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .loader-bar {
+      width: 30%;
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 3px;
+      animation: loading-anim 1.8s infinite ease-in-out;
+    }
+
+    @keyframes loading-anim {
+      0% { margin-left: -30%; width: 30%; }
+      50% { width: 40%; }
+      100% { margin-left: 100%; width: 30%; }
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Preview Component */
+    .preview-container {
+      display: none;
+      margin-top: 24px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .video-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-wrapper.portrait {
+      aspect-ratio: 9 / 16;
+      max-height: 400px;
+      width: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Error Alert */
+    .error-alert {
+      display: none;
+      margin-top: 20px;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: 14px;
+      padding: 16px;
+      color: var(--error-color);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      opacity: 0.7;
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .card {
+        padding: 24px 20px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+    <div class="card">
+      <header>
+        <h1>抖音视频下载助手</h1>
+        <div class="subtitle">Cloudflare Edge 视频解析与代理下载</div>
+      </header>
+
+      <main>
+        <div class="input-group">
+          <textarea id="urlInput" placeholder="在此粘贴抖音分享文案、短链接（v.douyin.com）或网页长链接..."></textarea>
+        </div>
+
+        <button id="extractBtn" class="btn">
+          <span>🚀 开始解析</span>
+        </button>
+
+        <div id="statusContainer" class="status-container">
+          <div class="loader">
+            <div class="loader-bar"></div>
+          </div>
+          <div id="statusText" class="status-text">初始化中...</div>
+        </div>
+
+        <div id="errorAlert" class="error-alert"></div>
+
+        <div id="previewContainer" class="preview-container">
+          <div id="videoTitle" class="video-title">视频标题</div>
+          <div id="videoWrapper" class="video-wrapper">
+            <video id="videoPlayer" controls playsinline preload="auto">
+              您的浏览器不支持 HTML5 视频播放。
+            </video>
+          </div>
+          <button id="downloadBtn" class="btn" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+            <span>📥 保存视频到手机</span>
+          </button>
+        </div>
+      </main>
+
+      <footer>
+        Power by Cloudflare Browser Rendering
+      </footer>
+    </div>
+  </div>
+</div>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const extractBtn = document.getElementById('extractBtn');
+    const statusContainer = document.getElementById('statusContainer');
+    const statusText = document.getElementById('statusText');
+    const errorAlert = document.getElementById('errorAlert');
+    const previewContainer = document.getElementById('previewContainer');
+    const videoTitle = document.getElementById('videoTitle');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoWrapper = document.getElementById('videoWrapper');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let extractedData = null;
+
+    // Helper: Show/Hide Elements
+    function show(element) { element.style.display = 'block'; }
+    function hide(element) { element.style.display = 'none'; }
+
+    // Start extraction
+    extractBtn.addEventListener('click', async () => {
+      const rawText = urlInput.value.trim();
+      if (!rawText) {
+        showError('请输入有效的抖音分享链接或内容！');
+        return;
+      }
+
+      // Reset UI
+      hide(errorAlert);
+      hide(previewContainer);
+      show(statusContainer);
+      extractBtn.disabled = true;
+      statusText.innerText = '正在启动云端渲染引擎...';
+
+      // Start SSE or polling/request
+      try {
+        const response = await fetch('/api/extract', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: rawText })
+        });
+
+        const result = await response.json();
+
+        if (response.status !== 200 || !result.success) {
+          throw new Error(result.message || '解析失败，请检查链接是否正确。');
+        }
+
+        extractedData = result.data;
+        showPreview(extractedData);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        hide(statusContainer);
+        extractBtn.disabled = false;
+      }
+    });
+
+    function showError(msg) {
+      errorAlert.innerText = '❌ 错误: ' + msg;
+      show(errorAlert);
+    }
+
+    function showPreview(data) {
+      videoTitle.innerText = data.title;
+      videoPlayer.src = \`/api/download?url=\${encodeURIComponent(data.url)}&preview=true\`;
+      
+      // Determine video orientation layout based on aspect ratio from title/video details
+      if (data.width && data.height && data.width < data.height) {
+        videoWrapper.classList.add('portrait');
+      } else {
+        videoWrapper.classList.remove('portrait');
+      }
+      
+      show(previewContainer);
+      
+      // Setup download handler
+      downloadBtn.onclick = () => {
+        // Trigger download via proxy to avoid referrer blocking
+        const downloadUrl = \`/api/download?url=\${encodeURIComponent(data.url)}&title=\${encodeURIComponent(data.title)}\`;
+        window.location.href = downloadUrl;
+      };
+    }
+  </script>
+</body>
+</html>`;

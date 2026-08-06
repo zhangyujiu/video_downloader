@@ -1,0 +1,10 @@
+name = "douyin-downloader"
+main = "src/index.js"
+compatibility_date = "2024-05-02"
+compatibility_flags = [ "nodejs_compat" ]
+
+# Enable assets/public directory if we want to serve frontend separately, 
+# but serving it inline in code is more robust and self-contained for a single-file deployment.
+
+[browser]
+binding = "MYBROWSER"
