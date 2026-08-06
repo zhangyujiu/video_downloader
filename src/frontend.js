@@ -4,20 +4,21 @@ export const htmlContent = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>抖音视频下载器</title>
-  <!-- Google Fonts Outfit & Noto Sans SC -->
+  <!-- Google Fonts Outfit & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
-      --card-bg: rgba(30, 41, 59, 0.45);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-gradient: linear-gradient(90deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
-      --accent-color: #a78bfa;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --error-color: #f87171;
+      --bg-color: #f4f4f6;
+      --card-bg: #ffffff;
+      --card-border: #e4e4e7;
+      --accent-orange: #ff5500;
+      --accent-green: #10b981;
+      --text-primary: #09090b;
+      --text-secondary: #71717a;
+      --error-red: #ef4444;
+      --terminal-bg: #fafafa;
     }
 
     * {
@@ -27,162 +28,125 @@ export const htmlContent = `<!DOCTYPE html>
     }
 
     body {
-      font-family: 'Outfit', 'Noto Sans SC', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
+      font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+      background-color: var(--bg-color);
+      background-image: 
+        linear-gradient(rgba(228, 228, 231, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(228, 228, 231, 0.4) 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: var(--text-primary);
+      min-height: 100vh;
       margin: 0;
       padding: 0;
-      min-height: 100vh;
     }
 
     .wrapper {
-      position: relative;
       width: 100%;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-      padding: 20px;
-    }
-
-    /* Background decorative blobs */
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      z-index: 0;
-      opacity: 0.15;
-      pointer-events: none;
-    }
-    .blob-1 {
-      top: 10%;
-      left: 15%;
-      width: 300px;
-      height: 300px;
-      background: #8b5cf6;
-    }
-    .blob-2 {
-      bottom: 15%;
-      right: 10%;
-      width: 400px;
-      height: 400px;
-      background: #ec4899;
+      padding: 24px 16px;
     }
 
     .container {
       width: 100%;
-      max-width: 540px;
-      z-index: 1;
+      max-width: 480px;
       position: relative;
     }
 
-    /* Glassmorphism Card */
+    /* Minimalist Technical Card */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+      border-radius: 0px; /* Sharp brutalist edges */
+      padding: 40px 28px;
+      box-shadow: 0 4px 24px rgba(9, 9, 11, 0.02);
+      position: relative;
     }
 
     header {
-      text-align: center;
       margin-bottom: 28px;
-    }
-
-    .logo-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .logo-icon {
-      font-size: 2.5rem;
-      margin-right: 8px;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
     }
 
     h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
-      letter-spacing: -0.5px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      display: inline-block;
+      border-bottom: 2px solid var(--accent-orange);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
-      font-size: 0.9rem;
-      color: var(--text-sub);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
     }
 
-    /* Input Controls */
+    /* Input Fields */
     .input-group {
       margin-bottom: 20px;
-      position: relative;
     }
 
     textarea {
       width: 100%;
       height: 110px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
+      background: var(--terminal-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0px;
       padding: 16px;
-      color: var(--text-main);
+      color: var(--text-primary);
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       resize: none;
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      line-height: 1.5;
+      transition: all 0.2s ease;
     }
 
     textarea:focus {
-      border-color: var(--accent-color);
-      box-shadow: 0 0 12px rgba(167, 139, 250, 0.2);
+      background: #ffffff;
+      border-color: var(--accent-orange);
     }
 
     textarea::placeholder {
-      color: #64748b;
+      color: #a1a1aa;
     }
 
+    /* Buttons */
     .btn {
       width: 100%;
-      height: 52px;
-      background: var(--accent-gradient);
-      border: none;
-      border-radius: 14px;
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
+      height: 46px;
+      background: var(--text-primary);
+      border: 1px solid var(--text-primary);
+      border-radius: 0px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-      transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.25s ease;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      color: #ffffff;
     }
 
     .btn:active {
@@ -190,90 +154,103 @@ export const htmlContent = `<!DOCTYPE html>
     }
 
     .btn:disabled {
-      opacity: 0.6;
+      border-color: var(--card-border);
+      color: var(--text-secondary);
+      background: #f4f4f5;
       cursor: not-allowed;
-      transform: none;
       box-shadow: none;
     }
 
-    /* Statuses and Progress */
+    /* Statuses and Console Output */
     .status-container {
       display: none;
-      margin-top: 24px;
-      padding: 16px;
-      background: rgba(15, 23, 42, 0.4);
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 20px;
+      padding: 14px;
+      background: var(--terminal-bg);
+      border-radius: 0px;
+      border: 1px solid var(--card-border);
     }
 
     .loader {
       width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
+      height: 3px;
+      background: var(--card-border);
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .loader-bar {
       width: 30%;
       height: 100%;
-      background: var(--accent-gradient);
-      border-radius: 3px;
-      animation: loading-anim 1.8s infinite ease-in-out;
+      background: var(--accent-orange);
+      animation: loading-anim 1.2s infinite ease-in-out;
     }
 
     @keyframes loading-anim {
-      0% { margin-left: -30%; width: 30%; }
-      50% { width: 40%; }
-      100% { margin-left: 100%; width: 30%; }
+      0% { margin-left: -30%; }
+      100% { margin-left: 100%; }
     }
 
     .status-text {
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      text-align: center;
+      font-size: 0.78rem;
+      color: var(--accent-orange);
       font-weight: 500;
+      text-align: left;
     }
 
-    /* Preview Component */
+    /* Preview Module */
     .preview-container {
       display: none;
       margin-top: 24px;
-      animation: fadeIn 0.4s ease forwards;
+      animation: fadeIn 0.25s ease-out forwards;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .video-title-box {
+      background: var(--terminal-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .video-title-tag {
+      font-size: 0.68rem;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .video-title-tag::before {
+      content: "[INFO]";
+    }
+
     .video-title {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text-main);
-      margin-bottom: 14px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
       line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      word-break: break-all;
     }
 
     .video-wrapper {
       position: relative;
       width: 100%;
-      border-radius: 16px;
+      border-radius: 0px;
+      border: 1px solid var(--card-border);
       overflow: hidden;
       background: #000;
       margin-bottom: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       aspect-ratio: 16 / 9;
     }
 
     .video-wrapper.portrait {
       aspect-ratio: 9 / 16;
-      max-height: 400px;
+      max-height: 380px;
       width: auto;
       margin-left: auto;
       margin-right: auto;
@@ -283,94 +260,92 @@ export const htmlContent = `<!DOCTYPE html>
       width: 100%;
       height: 100%;
       object-fit: contain;
+      outline: none;
     }
 
-    /* Error Alert */
+    /* Error Alert styling */
     .error-alert {
       display: none;
       margin-top: 20px;
-      background: rgba(248, 113, 113, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.2);
-      border-radius: 14px;
-      padding: 16px;
-      color: var(--error-color);
-      font-size: 0.88rem;
+      background: rgba(239, 68, 68, 0.03);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: 0px;
+      padding: 12px;
+      color: var(--error-red);
+      font-size: 0.78rem;
       line-height: 1.4;
+      text-align: left;
     }
 
     footer {
       margin-top: 32px;
       text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      opacity: 0.7;
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
-    footer a {
-      color: var(--accent-color);
-      text-decoration: none;
-    }
-
-    /* Responsive */
+    /* Responsive adjustments */
     @media (max-width: 480px) {
       .card {
-        padding: 24px 20px;
+        padding: 32px 20px;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="wrapper">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
     <div class="container">
-    <div class="card">
-      <header>
-        <h1>抖音视频下载助手</h1>
-        <div class="subtitle">Cloudflare Edge 视频解析与代理下载</div>
-      </header>
-
-      <main>
-        <div class="input-group">
-          <textarea id="urlInput" placeholder="在此粘贴抖音分享文案、短链接（v.douyin.com）或网页长链接..."></textarea>
-        </div>
-
-        <button id="extractBtn" class="btn">
-          <span>🚀 开始解析</span>
-        </button>
-
-        <div id="statusContainer" class="status-container">
-          <div class="loader">
-            <div class="loader-bar"></div>
+      <div class="card">
+        <header>
+          <h1>视频下载助手</h1>
+          <div class="subtitle">Cloudflare Edge 视频解析与代理下载</div>
+        </header>
+  
+        <main>
+          <div class="input-group">
+            <textarea id="urlInput" placeholder="在此粘贴抖音分享文案、短链接（v.douyin.com）或网页长链接..."></textarea>
           </div>
-          <div id="statusText" class="status-text">初始化中...</div>
-        </div>
-
-        <div id="errorAlert" class="error-alert"></div>
-
-        <div id="previewContainer" class="preview-container">
-          <div id="videoTitle" class="video-title">视频标题</div>
-          <div id="videoWrapper" class="video-wrapper">
-            <video id="videoPlayer" controls playsinline preload="auto">
-              您的浏览器不支持 HTML5 视频播放。
-            </video>
-          </div>
-          <button id="downloadBtn" class="btn" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
-            <span>📥 保存视频到手机</span>
+  
+          <button id="extractBtn" class="btn">
+            <span>开始解析</span>
           </button>
-        </div>
-      </main>
-
-      <footer>
-        Power by Cloudflare Browser Rendering
-      </footer>
+  
+          <div id="statusContainer" class="status-container">
+            <div class="loader">
+              <div class="loader-bar"></div>
+            </div>
+            <div id="statusText" class="status-text">INIT STATUS...</div>
+          </div>
+  
+          <div id="errorAlert" class="error-alert"></div>
+  
+          <div id="previewContainer" class="preview-container">
+            <div class="video-title-box">
+              <div class="video-title-tag"></div>
+              <div id="videoTitle" class="video-title">视频标题</div>
+            </div>
+            <div id="videoWrapper" class="video-wrapper">
+              <video id="videoPlayer" controls playsinline preload="auto">
+                您的浏览器不支持 HTML5 视频播放。
+              </video>
+            </div>
+            <button id="downloadBtn" class="btn" style="background: var(--text-primary); border-color: var(--text-primary);">
+              <span>保存视频到手机</span>
+            </button>
+          </div>
+        </main>
+  
+        <footer>
+          CF Browser Run Engine
+        </footer>
+      </div>
     </div>
   </div>
-</div>
 
   <script>
     const urlInput = document.getElementById('urlInput');
@@ -394,7 +369,7 @@ export const htmlContent = `<!DOCTYPE html>
     extractBtn.addEventListener('click', async () => {
       const rawText = urlInput.value.trim();
       if (!rawText) {
-        showError('请输入有效的抖音分享链接或内容！');
+        showError('请输入有效的分享链接或内容！');
         return;
       }
 
@@ -405,7 +380,7 @@ export const htmlContent = `<!DOCTYPE html>
       extractBtn.disabled = true;
       statusText.innerText = '正在启动云端渲染引擎...';
 
-      // Start SSE or polling/request
+      // Start request
       try {
         const response = await fetch('/api/extract', {
           method: 'POST',
@@ -432,7 +407,7 @@ export const htmlContent = `<!DOCTYPE html>
     });
 
     function showError(msg) {
-      errorAlert.innerText = '❌ 错误: ' + msg;
+      errorAlert.innerText = '> ' + msg;
       show(errorAlert);
     }
 
@@ -454,6 +429,16 @@ export const htmlContent = `<!DOCTYPE html>
         // Trigger download via proxy to avoid referrer blocking
         const downloadUrl = \`/api/download?url=\${encodeURIComponent(data.url)}&title=\${encodeURIComponent(data.title)}\`;
         window.location.href = downloadUrl;
+      };
+      
+      // Add visual hover effect for download button when active
+      downloadBtn.onmouseover = () => {
+        downloadBtn.style.background = 'var(--accent-green)';
+        downloadBtn.style.borderColor = 'var(--accent-green)';
+      };
+      downloadBtn.onmouseout = () => {
+        downloadBtn.style.background = 'var(--text-primary)';
+        downloadBtn.style.borderColor = 'var(--text-primary)';
       };
     }
   </script>
