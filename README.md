@@ -1,6 +1,6 @@
-# 视频无水印下载器 (抖音/B站)
+# 视频无水印下载器 (抖音/B站/快手)
 
-这是一个高性能、轻量级、无需服务器（Serverless）的抖音/B站视频解析与无水印下载解决方案。
+这是一个高性能、轻量级、无需服务器（Serverless）的抖音/B站/快手视频解析与下载解决方案。
 项目前端采用日系冷淡工业风设计，自适应手机与电脑端；后端部署于 Cloudflare Workers 全球边缘网络，配合云端浏览器渲染（Browser Rendering）与流式中转代理，实现 100% 稳定的解析与下载。
 
 ---
@@ -9,9 +9,9 @@
 
 ### **在线服务地址**：[https://video-downloader.jackzhang20191314.workers.dev](https://video-downloader.jackzhang20191314.workers.dev)
 
-1. **获取链接**：在抖音或 B站 App 内复制任意视频的分享链接或分享文案（支持 `v.douyin.com`、`b23.tv`、`bilibili.com`）。
+1. **获取链接**：在抖音、B站或快手 App 内复制任意视频的分享链接或分享文案（支持 `v.douyin.com`、`b23.tv`、`v.kuaishou.com` 等）。
 2. **提交解析**：打开上方网页，将复制的内容粘贴到输入框中，点击 **开始解析**。
-3. **播放与下载**：解析成功后，可在网页内**直接在线播放预览（带声音）**，点击 **保存视频到手机** 即可无水印高速保存至本地相册。
+3. **播放与下载**：解析成功后，可在网页内**直接在线播放预览（带声音）**，点击 **保存视频到手机** 即可高速保存至本地相册。
 
 ---
 
@@ -25,7 +25,7 @@
 ### 2. 下载并安装依赖
 在终端中进入项目文件夹，安装命令行部署工具 Wrangler：
 ```bash
-cd douyin_downloader
+cd video_downloader
 npm install
 ```
 
@@ -71,7 +71,13 @@ npx wrangler deploy
    从中解析出 `state.video.playUrlInfo[0].url`。该直链是 B站专门为移动端 H5 播放器提供的 **音视频合并高清 MP4 文件**，免去了 DASH 协议下繁琐的音视频分离轨道合并（Muxing）工作。
 2. **云端无头浏览器退避 (WAF 绕过)**：若极速直连受到 B站防火墙拦截返回 `412 Precondition Failed`，Worker 会**自动降级启用云端无头浏览器（Puppeteer）**，等待网页初始化并提取 `window.__INITIAL_STATE__` 变量，实现 100% 成功解析。
 
+### 🤝 快手 (Kuaishou) 解析实现方案
+1. **短链自动追踪**：快手分享短链（如 `v.kuaishou.com`）在出站请求时，自动跟随重定向并还原出快手移动端 H5 页面地址（`v.m.chenzhongtech.com/fw/photo/...`）。
+2. **免浏览器解密提取 (0额度消耗)**：为绕过快手高强度的滑动验证码（`captcha.zt.kuaishou.com`），程序在云端直接抓取页面 HTML，提取嵌入的全局加密数据 `window.INIT_STATE`。
+3. **ROT-1 密钥还原算法**：快手对 `INIT_STATE` 对象的 key 进行了偏移量为 +1 的 ROT-1 简单加密（例如将 `"string"` 加密为 `"tusjoh"`，`/rest/wd/ugH5App/photo/simple/info` 加密为 `.0sftu0xe0vhI6Bqq0qipup0tjnqmf0jogp`）。程序通过反向减一解密出对应的接口数据值，从而直接读取视频详情 `val.photo.mainMvUrls[0].url`，在完全不运行 JS 的情况下秒级解析，规避滑块风控。
+4. **无头浏览器弹性降级**：如果直链解密失败，程序会自动降级通过 Puppeteer 浏览器引擎渲染页面，等待 `INIT_STATE` 脚本加载后，在沙箱环境中解密提取视频源。
+
 ### 🔀 云端流式管道代理 (CORS & 403 跨域越狱)
-无论是抖音的 `douyinvod.com` 还是 B站的 `bilivideo.com` CDN，都对 `Referer` 做了严格的限制，且存在跨域访问拦截。
-- **动态防盗链伪装**：项目内置了中转路由 `/api/download?url=...`。Worker 在接收到下载请求时，会根据 URL 的归属自动在出站请求中注入 `Referer` 标头（B站注入 `bilibili.com`，抖音注入 `douyin.com`）。
+无论是抖音、B站还是快手的 CDN，都有一定的防盗链或跨域下载限制。
+- **动态防盗链伪装**：项目内置了中转路由 `/api/download?url=...`。Worker 在接收到下载请求时，会根据 URL 的归属自动在出站请求中注入 `Referer` 标头（B站注入 `bilibili.com`，抖音注入 `douyin.com`，快手注入 `kuaishou.com`）。
 - **管道流 (Streaming Pipe) 实时中转**：Worker 通过在响应头中强行添加 CORS 跨域许可，并使用 **ReadableStream 管道流**，将 CDN 原始的视频比特流实时转发给用户浏览器。整个过程只做数据流的直传，内存开销极低，且完美避开了浏览器的跨域和 403 下载被拒问题。

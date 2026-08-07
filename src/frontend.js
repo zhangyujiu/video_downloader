@@ -308,7 +308,7 @@ export const htmlContent = `<!DOCTYPE html>
   
         <main>
           <div class="input-group">
-            <textarea id="urlInput" placeholder="在此粘贴抖音/B站（b23.tv / bilibili.com）的分享链接或文案..."></textarea>
+            <textarea id="urlInput" placeholder="在此粘贴抖音/B站/快手的分享链接或文案..."></textarea>
           </div>
   
           <button id="extractBtn" class="btn">

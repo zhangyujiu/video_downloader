@@ -22,9 +22,12 @@ export default {
       }
 
       try {
-        const referer = videoCdnUrl.includes("bilivideo.com") || videoCdnUrl.includes("bilibili")
-          ? "https://www.bilibili.com/"
-          : "https://www.douyin.com/";
+        let referer = "https://www.douyin.com/";
+        if (videoCdnUrl.includes("bilivideo.com") || videoCdnUrl.includes("bilibili")) {
+          referer = "https://www.bilibili.com/";
+        } else if (videoCdnUrl.includes("kwai") || videoCdnUrl.includes("yximgs.com") || videoCdnUrl.includes("gifshow.com")) {
+          referer = "https://www.kuaishou.com/";
+        }
 
         const response = await fetch(videoCdnUrl, {
           headers: {
@@ -123,6 +126,65 @@ export default {
             }
           } catch (biliErr) {
             console.error("Direct Bilibili fetch error, falling back to Puppeteer...", biliErr);
+          }
+        }
+
+        // Try direct Kuaishou parsing (to save Puppeteer minutes and bypass WAF slider captcha)
+        if (targetUrl.includes("kuaishou.com") || targetUrl.includes("chenzhongtech.com")) {
+          console.log("Attempting direct Kuaishou fetch:", targetUrl);
+          try {
+            const ksRes = await fetch(targetUrl, {
+              headers: {
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+                "Referer": "https://www.kuaishou.com/"
+              }
+            });
+
+            if (ksRes.ok) {
+              const html = await ksRes.text();
+              const startIdx = html.indexOf("window.INIT_STATE = {");
+              if (startIdx !== -1) {
+                const braceStart = html.indexOf("{", startIdx);
+                const endIdx = html.indexOf("</script>", startIdx);
+                if (braceStart !== -1 && endIdx !== -1) {
+                  const jsonEnd = html.lastIndexOf("}", endIdx) + 1;
+                  const jsonStr = html.substring(braceStart, jsonEnd);
+                  const state = JSON.parse(jsonStr);
+
+                  // Decrypt ROT-1 helper
+                  const decryptKey = (encKey) => {
+                    let dec = "";
+                    for (let j = 0; j < encKey.length; j++) {
+                      dec += String.fromCharCode(encKey.charCodeAt(j) - 1);
+                    }
+                    return dec;
+                  };
+
+                  for (const [encKey, val] of Object.entries(state)) {
+                    const decKey = decryptKey(encKey);
+                    if (decKey.includes("photo/simple/info")) {
+                      if (val && val.photo) {
+                        videoTitle = (val.photo.caption || "kuaishou_video") + "_kuaishou";
+                        if (val.photo.mainMvUrls && val.photo.mainMvUrls.length > 0) {
+                          videoUrl = val.photo.mainMvUrls[0].url;
+                        } else if (val.photo.playUrls && val.photo.playUrls.length > 0) {
+                          videoUrl = val.photo.playUrls[0].url;
+                        }
+                        if (videoUrl) {
+                          usePuppeteer = false;
+                          console.log("Direct Kuaishou parsing succeeded!");
+                        }
+                      }
+                      break;
+                    }
+                  }
+                }
+              }
+            } else {
+              console.log(`Direct Kuaishou fetch returned non-2xx status: ${ksRes.status}, falling back to Puppeteer...`);
+            }
+          } catch (ksErr) {
+            console.error("Direct Kuaishou fetch error, falling back to Puppeteer...", ksErr);
           }
         }
 
@@ -228,6 +290,57 @@ export default {
                 }
               } catch (biliErr) {
                 console.error("Bilibili __INITIAL_STATE__ extraction failed inside Puppeteer:", biliErr.message);
+              }
+            }
+
+            // Extract Kuaishou data if applicable inside Puppeteer
+            if (targetUrl.includes("kuaishou.com") || targetUrl.includes("chenzhongtech.com")) {
+              console.log("Detecting Kuaishou URL inside Puppeteer, waiting for INIT_STATE...");
+              try {
+                await page.waitForFunction(() => {
+                  return typeof window.INIT_STATE === "object" && 
+                         window.INIT_STATE !== null &&
+                         Object.keys(window.INIT_STATE).length > 0;
+                }, { timeout: 6000 });
+
+                const evalRes = await page.evaluate(() => {
+                  if (typeof window.INIT_STATE === "object" && window.INIT_STATE !== null) {
+                    const decryptKey = (encKey) => {
+                      let dec = "";
+                      for (let j = 0; j < encKey.length; j++) {
+                        dec += String.fromCharCode(encKey.charCodeAt(j) - 1);
+                      }
+                      return dec;
+                    };
+                    for (const [encKey, val] of Object.entries(window.INIT_STATE)) {
+                      const decKey = decryptKey(encKey);
+                      if (decKey.includes("photo/simple/info")) {
+                        if (val && val.photo) {
+                          let vUrl = null;
+                          if (val.photo.mainMvUrls && val.photo.mainMvUrls.length > 0) {
+                            vUrl = val.photo.mainMvUrls[0].url;
+                          } else if (val.photo.playUrls && val.photo.playUrls.length > 0) {
+                            vUrl = val.photo.playUrls[0].url;
+                          }
+                          return {
+                            url: vUrl,
+                            title: val.photo.caption || document.title
+                          };
+                        }
+                        break;
+                      }
+                    }
+                  }
+                  return null;
+                });
+
+                if (evalRes && evalRes.url) {
+                  videoUrl = evalRes.url;
+                  videoTitle = evalRes.title + "_kuaishou";
+                  console.log("Successfully extracted Kuaishou URL from INIT_STATE inside Puppeteer:", videoUrl);
+                }
+              } catch (ksErr) {
+                console.error("Kuaishou Puppeteer state extraction failed:", ksErr.message);
               }
             }
 
@@ -341,7 +454,7 @@ async function resolveRedirect(url) {
   };
 
   for (let i = 0; i < maxRedirects; i++) {
-    if (!currentUrl.includes("v.douyin.com") && !currentUrl.includes("b23.tv")) {
+    if (!currentUrl.includes("v.douyin.com") && !currentUrl.includes("b23.tv") && !currentUrl.includes("v.kuaishou.com")) {
       break;
     }
 
