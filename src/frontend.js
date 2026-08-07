@@ -3,7 +3,7 @@ export const htmlContent = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>抖音视频下载器</title>
+  <title>视频无水印下载器</title>
   <!-- Google Fonts Outfit & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -308,7 +308,7 @@ export const htmlContent = `<!DOCTYPE html>
   
         <main>
           <div class="input-group">
-            <textarea id="urlInput" placeholder="在此粘贴抖音分享文案、短链接（v.douyin.com）或网页长链接..."></textarea>
+            <textarea id="urlInput" placeholder="在此粘贴抖音/B站（b23.tv / bilibili.com）的分享链接或文案..."></textarea>
           </div>
   
           <button id="extractBtn" class="btn">
