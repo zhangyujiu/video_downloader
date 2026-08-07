@@ -3,6 +3,7 @@ import { htmlContent } from "./frontend.js";
 import { extractDouyin } from "./extractors/douyin.js";
 import { extractBilibili } from "./extractors/bilibili.js";
 import { extractKuaishou } from "./extractors/kuaishou.js";
+import { extractXiaohongshu } from "./extractors/xiaohongshu.js";
 
 export default {
   async fetch(request, env) {
@@ -30,6 +31,8 @@ export default {
           referer = "https://www.bilibili.com/";
         } else if (videoCdnUrl.includes("kwai") || videoCdnUrl.includes("yximgs.com") || videoCdnUrl.includes("gifshow.com")) {
           referer = "https://www.kuaishou.com/";
+        } else if (videoCdnUrl.includes("xhscdn.com") || videoCdnUrl.includes("xiaohongshu")) {
+          referer = "https://www.xiaohongshu.com/";
         }
 
         const response = await fetch(videoCdnUrl, {
@@ -98,6 +101,8 @@ export default {
           result = await extractBilibili(targetUrl, env, puppeteer);
         } else if (targetUrl.includes("kuaishou.com") || targetUrl.includes("chenzhongtech.com")) {
           result = await extractKuaishou(targetUrl, env, puppeteer);
+        } else if (targetUrl.includes("xiaohongshu.com") || targetUrl.includes("xhslink.cn")) {
+          result = await extractXiaohongshu(targetUrl, env, puppeteer);
         } else {
           result = await extractDouyin(targetUrl, env, puppeteer);
         }
@@ -153,7 +158,7 @@ async function resolveRedirect(url) {
   };
 
   for (let i = 0; i < maxRedirects; i++) {
-    if (!currentUrl.includes("v.douyin.com") && !currentUrl.includes("b23.tv") && !currentUrl.includes("v.kuaishou.com")) {
+    if (!currentUrl.includes("v.douyin.com") && !currentUrl.includes("b23.tv") && !currentUrl.includes("v.kuaishou.com") && !currentUrl.includes("xhslink.cn")) {
       break;
     }
 

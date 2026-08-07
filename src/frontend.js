@@ -308,7 +308,7 @@ export const htmlContent = `<!DOCTYPE html>
   
         <main>
           <div class="input-group">
-            <textarea id="urlInput" placeholder="在此粘贴抖音/B站/快手的分享链接或文案..."></textarea>
+            <textarea id="urlInput" placeholder="在此粘贴抖音/B站/快手/小红书的分享链接或文案..."></textarea>
           </div>
   
           <button id="extractBtn" class="btn">
@@ -335,7 +335,7 @@ export const htmlContent = `<!DOCTYPE html>
               </video>
             </div>
             <button id="downloadBtn" class="btn" style="background: var(--text-primary); border-color: var(--text-primary);">
-              <span>保存视频到手机</span>
+              <span>保存视频</span>
             </button>
           </div>
         </main>
