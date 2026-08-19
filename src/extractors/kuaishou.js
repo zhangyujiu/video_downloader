@@ -75,7 +75,7 @@ export async function extractKuaishou(targetUrl, env, puppeteer) {
         return {
           success: false,
           status: 429,
-          message: "由于解析服务每日免费浏览器额度（10分钟）已用尽，暂时无法启动云端引擎。建议重试或升级 Cloudflare 计划。注意：快手视频在正常额度下可直接通过直链模式高速提取。"
+          message: "云端解析服务当前负载过高，请稍后重试。"
         };
       }
       return { success: false, status: 500, message: `浏览器引擎启动失败: ${launchErr.message}` };
