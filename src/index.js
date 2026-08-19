@@ -54,7 +54,7 @@ export default {
           headers.set("Content-Disposition", "inline");
         } else {
           // Force browser to save file as attachment
-          const safeTitle = encodeURIComponent(title.replace(/[\\/*?:"<>|]/g, "").trim());
+          const safeTitle = encodeURIComponent(title.replace(/[\r\n\t]/g, " ").replace(/[\\/*?:"<>|]/g, "").replace(/\s+/g, " ").trim());
           headers.set("Content-Disposition", `attachment; filename="${safeTitle}.mp4"`);
         }
 
