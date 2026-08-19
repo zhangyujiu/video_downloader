@@ -55,13 +55,10 @@ npx wrangler deploy
 
 ### 🎵 抖音 (Douyin) 解析实现方案
 1. **短网址重定向追踪**：抖音分享链接（如 `v.douyin.com`）由 Worker 发起 `HEAD` 请求追踪，获取最终的 `www.douyin.com/video/7xxxxxxxxxx` 长链接。如果是合集/模块链接，提取 `modal_id` 参数并规范化为直连视频页。
-2. **移动端伪装 (Bypass 滑块)**：使用数据中心 IP 直接调用抖音电脑端 API 会因缺少签名产生滑动拼图风控。为此，我们在启动云端无头浏览器（Puppeteer）时强行模拟 **iPhone Safari 移动端环境**（设置 Viewport 为 375x812 并注入移动端 User-Agent），从根本上避免触发拼图风控。
-3. **网络数据包拦截**：监听浏览器的网络请求，一旦发现匹配 `aweme/v1/web/aweme/detail` 的核心接口响应，立即调用 `response.json()` 获取原生的视频属性对象。
-4. **水印自动去除**：拦截到视频 CDN 地址后，通过正则替换算法：
-   ```javascript
-   videoUrl = videoUrl.replace("/playwm/", "/play/");
-   ```
-   将包含 `/playwm/`（有水印）的 CDN 路径热替换为 `/play/`（无水印），即可驱动 CDN 节点向客户端发送无水印的高清原片视频。
+2. **免浏览器 ttwid 会话注册 (0额度消耗)**：为突破抖音对机房 IP（如 Cloudflare 网段）强制弹出的滑块验证码，程序在云端直接模拟向字节跳动的 `ttwid.bytedance.com/ttwid/union/register/` 发送注册请求，获取全局唯一的 `ttwid` 会话凭证 Cookie。此方案完全避免了 Puppeteer 无头浏览器被风控阻拦的问题。
+3. **直连官方详情 API**：携带动态生成的 `ttwid` Cookie 标头，通过云端 API 直连官方的核心详情接口 `aweme/v1/web/aweme/detail`。免去了繁琐的滑动验证和自动化浏览器拉起开销，秒级获取视频播放直链和详情。
+4. **水印自动去除**：解析出视频播放地址后，通过正则替换算法将包含 `/playwm/`（有水印）的路径热替换为 `/play/`（无水印），直接驱动 CDN 节点传输无水印高清原片。
+5. **云端浏览器弹性降级**：若直连 API 因极端的接口变动或参数校验失败，程序会自动退避降级为使用无头浏览器（Puppeteer）渲染并注入 stealth 脚本屏蔽 `navigator.webdriver` 标志，保证高可靠的解析成功率。
 
 ### 📺 哔哩哔哩 (B站) 解析实现方案
 1. **自适应极速直连 (0额度消耗)**：当用户提交 B站链接时，后端优先使用标准 `fetch` 直接抓取 B站移动端 H5 网页（`m.bilibili.com/video/BVxxxx`）。如果请求未被 B站 WAF 阻拦，程序直接利用正则表达式提取网页中的全局状态机 JSON：
